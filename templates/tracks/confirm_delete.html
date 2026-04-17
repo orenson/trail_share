@@ -1,0 +1,23 @@
+{% extends 'base.html' %}
+{% block title %}Delete Track — TrailShare{% endblock %}
+{% block content %}
+<div class="container py-5" style="max-width:480px">
+  <div class="card">
+    <div class="card-body p-4 text-center">
+      <div style="font-size:2.5rem" class="mb-3">🗑️</div>
+      <h4>Delete Track?</h4>
+      <p class="text-secondary mb-4">
+        Are you sure you want to delete <strong class="text-light">{{ track.title }}</strong>?
+        This cannot be undone.
+      </p>
+      <div class="d-flex gap-3 justify-content-center">
+        <a href="{% url 'track_detail' track.pk %}" class="btn btn-outline-secondary">Cancel</a>
+        <form method="post">
+          {% csrf_token %}
+          <button type="submit" class="btn btn-danger"><i class="bi bi-trash me-1"></i>Delete</button>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

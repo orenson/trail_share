@@ -1,0 +1,125 @@
+{% extends 'base.html' %}
+{% block title %}{{ track.title }} — TrailShare{% endblock %}
+{% block extra_head %}
+<style>
+  .gpxstudio-frame { border:0; outline:none; border-radius:.5rem; display:block; }
+  .stats-grid { display:grid; grid-template-columns:repeat(auto-fit,minmax(120px,1fr)); gap:1px; background:#2a3f2f; border:1px solid #2a3f2f; border-radius:.5rem; overflow:hidden; }
+  .stat-cell { background:#162019; padding:1.2rem; text-align:center; }
+  .stat-cell .val { font-family:'Syne',sans-serif; font-size:1.6rem; font-weight:700; color:var(--ts-green); display:block; }
+  .stat-cell .lbl { font-size:.65rem; text-transform:uppercase; letter-spacing:.07em; color:#4a6b52; }
+</style>
+{% endblock %}
+
+{% block content %}
+<!-- Hero bar -->
+<div style="background:#162019;border-bottom:1px solid #2a3f2f">
+  <div class="container py-4">
+    <nav aria-label="breadcrumb" class="mb-2">
+      <ol class="breadcrumb mb-0" style="font-size:.78rem">
+        <li class="breadcrumb-item"><a href="{% url 'dashboard' %}" class="text-decoration-none text-secondary">Dashboard</a></li>
+        <li class="breadcrumb-item"><a href="{% url 'group_detail' group.slug %}" class="text-decoration-none text-secondary">{{ group.name }}</a></li>
+        <li class="breadcrumb-item active text-secondary">{{ track.title|truncatechars:30 }}</li>
+      </ol>
+    </nav>
+    <div class="d-flex justify-content-between align-items-start flex-wrap gap-3">
+      <div>
+        <div class="d-flex align-items-center gap-3 mb-2">
+          <span style="font-size:2.2rem">{{ track.activity_icon }}</span>
+          <h2 class="mb-0">{{ track.title }}</h2>
+        </div>
+        <div class="d-flex flex-wrap gap-2 align-items-center">
+          <span class="stat-pill"><i class="bi bi-person"></i> {{ track.uploaded_by.username }}</span>
+          <span class="stat-pill"><i class="bi bi-calendar3"></i> {{ track.created_at|date:"F j, Y" }}</span>
+          <span class="badge badge-activity">{{ track.get_activity_type_display }}</span>
+          <!-- <a href="{% url 'group_detail' group.slug %}" class="stat-pill text-decoration-none"><i class="bi bi-people"></i> {{ group.name }}</a> -->
+        </div>
+        {% if track.description %}
+        <p class="text-secondary small mt-2 mb-0" style="max-width:560px">{{ track.description }}</p>
+        {% endif %}
+      </div>
+      <div class="d-flex gap-2 flex-wrap">
+        <a href="{{ track.gpx_file.url }}" download class="btn btn-outline-secondary btn-sm">
+          <i class="bi bi-download me-1"></i>Download GPX
+        </a>
+        <!-- <a href="{{ gpxstudio_url }}" target="_blank" class="btn btn-outline-secondary btn-sm">
+          <i class="bi bi-box-arrow-up-right me-1"></i>Open in gpx.studio
+        </a> -->
+        {% if user == track.uploaded_by %}
+        <form method="post" action="{% url 'delete_track' track.pk %}" class="d-inline">
+          {% csrf_token %}
+          <button type="submit" class="btn btn-outline-danger btn-sm"
+                  onclick="return confirm('Delete this track permanently?')">
+            <i class="bi bi-trash me-1"></i>Delete
+          </button>
+        </form>
+        {% endif %}
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="container py-4">
+
+  <!-- Stats -->
+  {% if track.distance_km or track.elevation_gain_m or track.max_elevation_m or track.get_duration_display %}
+  <div class="stats-grid mb-4">
+    {% if track.distance_km %}
+    <div class="stat-cell">
+      <span class="val">{{ track.distance_km }}</span>
+      <span class="lbl">Distance (km)</span>
+    </div>
+    {% endif %}
+    {% if track.elevation_gain_m %}
+    <div class="stat-cell">
+      <span class="val">+{{ track.elevation_gain_m }}</span>
+      <span class="lbl">Gain (m)</span>
+    </div>
+    {% endif %}
+    {% if track.elevation_loss_m %}
+    <div class="stat-cell">
+      <span class="val">-{{ track.elevation_loss_m }}</span>
+      <span class="lbl">Loss (m)</span>
+    </div>
+    {% endif %}
+    {% if track.max_elevation_m %}
+    <div class="stat-cell">
+      <span class="val">{{ track.max_elevation_m }}</span>
+      <span class="lbl">Max Elev (m)</span>
+    </div>
+    {% endif %}
+    {% if track.get_duration_display %}
+    <div class="stat-cell">
+      <span class="val">{{ track.get_duration_display }}</span>
+      <span class="lbl">Duration</span>
+    </div>
+    {% endif %}
+  </div>
+  {% endif %}
+
+  <!-- gpx.studio embed -->
+  <div class="mb-2 d-flex justify-content-between align-items-center">
+    <p class="section-label mb-0">Map Visualization</p>
+  </div>
+
+  <div class="card p-0 overflow-hidden">
+    <iframe
+      src="{{ gpxstudio_url }}"
+      class="gpxstudio-frame"
+      width="100%"
+      height="600px"
+      frameborder="0"
+      style="outline: none;"
+      title="gpx.studio — {{ track.title }}"
+      allow="fullscreen">
+    </iframe>
+  </div>
+
+  <div class="alert mt-3 py-2 small" style="background:#1e2d22;border:1px solid #2a3f2f;color:#7a9e84">
+    <i class="bi bi-info-circle me-2"></i>
+    The map is powered by <a href="https://gpx.studio" target="_blank" class="text-decoration-none" style="color:var(--ts-green)">gpx.studio</a>.
+    If the embed doesn't load, your server must be publicly accessible (not localhost).
+    Use <code style="color:#d8eee0">ngrok http 8000</code> to tunnel for local testing, or deploy to a public server.
+  </div>
+
+</div>
+{% endblock %}

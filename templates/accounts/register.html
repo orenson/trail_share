@@ -1,0 +1,54 @@
+{% extends 'base.html' %}
+{% block title %}Join TrailShare{% endblock %}
+{% block content %}
+<div class="min-vh-100 d-flex align-items-center justify-content-center py-5">
+  <div class="w-100" style="max-width:480px">
+    <div class="text-center mb-4">
+      <span style="font-size:2.5rem">⛰️</span>
+      <h2 class="mt-2">Join TrailShare</h2>
+      <p class="text-secondary">Create your account and start sharing adventures.</p>
+    </div>
+    <div class="card">
+      <div class="card-body p-4">
+        <form method="post">
+          {% csrf_token %}
+          <div class="row g-3 mb-3">
+            <div class="col">
+              <label class="form-label small">First Name</label>
+              {{ form.first_name }}
+            </div>
+            <div class="col">
+              <label class="form-label small">Last Name</label>
+              {{ form.last_name }}
+            </div>
+          </div>
+          <div class="mb-3">
+            <label class="form-label small">Username <span class="text-danger">*</span></label>
+            {{ form.username }}
+            {% if form.username.errors %}<div class="text-danger small mt-1">{{ form.username.errors.0 }}</div>{% endif %}
+          </div>
+          <div class="mb-3">
+            <label class="form-label small">Email <span class="text-danger">*</span></label>
+            {{ form.email }}
+            {% if form.email.errors %}<div class="text-danger small mt-1">{{ form.email.errors.0 }}</div>{% endif %}
+          </div>
+          <div class="mb-3">
+            <label class="form-label small">Password <span class="text-danger">*</span></label>
+            {{ form.password1 }}
+            {% if form.password1.errors %}<div class="text-danger small mt-1">{{ form.password1.errors.0 }}</div>{% endif %}
+          </div>
+          <div class="mb-4">
+            <label class="form-label small">Confirm Password <span class="text-danger">*</span></label>
+            {{ form.password2 }}
+            {% if form.password2.errors %}<div class="text-danger small mt-1">{{ form.password2.errors.0 }}</div>{% endif %}
+          </div>
+          <button type="submit" class="btn btn-ts w-100">Create Account <i class="bi bi-arrow-right ms-1"></i></button>
+        </form>
+      </div>
+    </div>
+    <p class="text-center text-secondary small mt-3">
+      Already have an account? <a href="{% url 'login' %}" class="text-decoration-none" style="color:var(--ts-green)">Sign in</a>
+    </p>
+  </div>
+</div>
+{% endblock %}

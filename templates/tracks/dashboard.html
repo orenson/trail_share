@@ -1,0 +1,111 @@
+{% extends 'base.html' %}
+{% block title %}Dashboard — TrailShare{% endblock %}
+{% block content %}
+<div class="container py-4">
+
+  <!-- Header -->
+  <div class="d-flex justify-content-between align-items-center mb-4 flex-wrap gap-3">
+    <div>
+      <p class="section-label mb-1">Welcome back</p>
+      <h2 class="mb-0">{{ user.username }}'s Trails</h2>
+    </div>
+    <!-- <div class="d-flex gap-2">
+      <a href="{% url 'explore' %}" class="btn btn-outline-secondary btn-sm"><i class="bi bi-compass me-1"></i>Explore</a>
+      <a href="{% url 'create_group' %}" class="btn btn-ts btn-sm"><i class="bi bi-plus-lg me-1"></i>New Group</a>
+    </div> -->
+  </div>
+
+  <!-- My Groups -->
+  <p class="section-label mb-3">My Groups ({{ my_groups|length }})</p>
+  {% if my_groups %}
+  <div class="row g-3 mb-5">
+    {% for group in my_groups %}
+    <div class="col-md-6 col-lg-4">
+      <a href="{% url 'group_detail' group.slug %}" class="group-card-link">
+        <div class="card h-100">
+          <div class="cover-bar" style="background:{{ group.cover_color }}"></div>
+          <div class="card-body">
+            <div class="d-flex justify-content-between align-items-start mb-2">
+              <h6 class="card-title mb-0">{{ group.name }}</h6>
+              {% if group.is_private %}
+              <span class="badge" style="background:rgba(244,162,97,.15);color:#f4a261;border:1px solid rgba(244,162,97,.3);font-size:.65rem"><i class="bi bi-lock-fill me-1"></i>Private</span>
+              {% else %}
+              <span class="badge badge-activity"><i class="bi bi-globe me-1"></i>Public</span>
+              {% endif %}
+            </div>
+            <p class="text-secondary small mb-3" style="display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden">{{ group.description|default:"No description." }}</p>
+            <div class="d-flex gap-2">
+              <span class="stat-pill"><i class="bi bi-people"></i> {{ group.member_count }}</span>
+              <span class="stat-pill"><i class="bi bi-map"></i> {{ group.track_count }}</span>
+            </div>
+          </div>
+        </div>
+      </a>
+    </div>
+    {% endfor %}
+  </div>
+  {% else %}
+  <div class="card mb-5">
+    <div class="card-body text-center py-5">
+      <div style="font-size:2.5rem" class="mb-3">🏔️</div>
+      <h5>No groups yet</h5>
+      <p class="text-secondary small mb-3">Create a group to start sharing your trails.</p>
+      <a href="{% url 'create_group' %}" class="btn btn-ts">Create Your First Group</a>
+    </div>
+  </div>
+  {% endif %}
+
+  <div class="row g-4">
+    <!-- Recent Tracks -->
+    <div class="col-lg-8">
+      <p class="section-label mb-3">Recent Activity</p>
+      {% if recent_tracks %}
+      <div class="list-group">
+        {% for track in recent_tracks %}
+        <a href="{% url 'track_detail' track.pk %}" class="list-group-item list-group-item-action track-row d-flex align-items-center gap-3 py-3">
+          <span style="font-size:1.6rem">{{ track.activity_icon }}</span>
+          <div class="flex-grow-1 min-width-0">
+            <div class="d-flex justify-content-between align-items-start">
+              <strong class="small">{{ track.title }}</strong>
+              <span class="text-secondary" style="font-size:.72rem;white-space:nowrap;margin-left:.5rem">{{ track.created_at|date:"M j" }}</span>
+            </div>
+            <div class="text-secondary" style="font-size:.75rem">{{ track.group.name }} · by {{ track.uploaded_by.username }}</div>
+          </div>
+          <div class="d-flex gap-2 flex-shrink-0">
+            {% if track.distance_km %}<span class="stat-pill">{{ track.distance_km }} km</span>{% endif %}
+            {% if track.elevation_gain_m %}<span class="stat-pill">↑{{ track.elevation_gain_m }}m</span>{% endif %}
+          </div>
+        </a>
+        {% endfor %}
+      </div>
+      {% else %}
+      <div class="card"><div class="card-body text-center py-4">
+        <div style="font-size:2rem" class="mb-2">🗺️</div>
+        <p class="text-secondary small mb-0">No tracks yet. Upload a GPX to a group to get started.</p>
+      </div></div>
+      {% endif %}
+    </div>
+
+    <!-- Discover -->
+    {% if public_groups %}
+    <div class="col-lg-4">
+      <p class="section-label mb-3">Discover Groups</p>
+      <div class="list-group">
+        {% for group in public_groups %}
+        <a href="{% url 'group_detail' group.slug %}" class="list-group-item list-group-item-action d-flex align-items-center gap-3 py-3 track-row">
+          <span style="width:10px;height:10px;border-radius:50%;background:{{ group.cover_color }};flex-shrink:0;display:inline-block"></span>
+          <div class="flex-grow-1">
+            <div class="small fw-semibold">{{ group.name }}</div>
+            <div class="text-secondary" style="font-size:.72rem">{{ group.member_count }} members · {{ group.track_count }} tracks</div>
+          </div>
+          <i class="bi bi-arrow-right text-secondary"></i>
+        </a>
+        {% endfor %}
+      </div>
+      <a href="{% url 'explore' %}" class="btn btn-outline-secondary btn-sm w-100 mt-2">View All <i class="bi bi-arrow-right"></i></a>
+    </div>
+    {% endif %}
+  </div>
+
+</div>
+{% endblock %}

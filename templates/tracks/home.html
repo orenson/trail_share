@@ -1,0 +1,92 @@
+{% extends 'base.html' %}
+{% block title %}TrailShare — Share Your GPX Adventures{% endblock %}
+
+{% block extra_head %}
+<style>
+  .hero { min-height: calc(100vh - 62px); display: flex; align-items: center; background: radial-gradient(ellipse 80% 60% at 50% 0%, rgba(82,183,136,.1) 0%, transparent 60%); }
+  .hero h1 { font-size: clamp(2.8rem, 8vw, 5.5rem); letter-spacing: -.04em; line-height: .95; }
+  .hero h1 .accent { color: var(--ts-green); }
+  .hero-stat .num { font-family: 'Syne', sans-serif; font-size: 2rem; font-weight: 700; color: var(--ts-green); }
+  .hero-stat .lbl { font-size: .7rem; text-transform: uppercase; letter-spacing: .08em; color: #4a6b52; }
+  .feature-icon-wrap { width: 48px; height: 48px; background: rgba(82,183,136,.12); border-radius: 12px; display: flex; align-items: center; justify-content: center; font-size: 1.4rem; flex-shrink: 0; }
+</style>
+{% endblock %}
+
+{% block content %}
+<!-- Hero -->
+<section class="hero py-5">
+  <div class="container py-5">
+    <div class="row align-items-center g-5">
+      <div class="col-lg-7">
+        <p class="section-label mb-3"><i class="bi bi-geo-alt me-1"></i>GPX Sharing Platform</p>
+        <h1 class="mb-4">Every trail<br>tells a <span class="accent">story</span></h1>
+        <p class="lead text-secondary mb-4" style="max-width:480px">Upload GPX files, visualize routes with gpx.studio, and share adventures with your group — hikers, cyclists, runners.</p>
+        <div class="d-flex gap-3 flex-wrap">
+          <a href="{% url 'register' %}" class="btn btn-ts btn-lg px-4">Get Started <i class="bi bi-arrow-right ms-1"></i></a>
+          <a href="{% url 'explore' %}" class="btn btn-outline-secondary btn-lg px-4">Browse Groups</a>
+        </div>
+        <div class="d-flex gap-5 mt-5">
+          <div class="hero-stat"><div class="num">GPX</div><div class="lbl">Native format</div></div>
+          <div class="hero-stat"><div class="num">3D</div><div class="lbl">Elevation data</div></div>
+          <div class="hero-stat"><div class="num"><i class="bi bi-lock-fill" style="font-size:1.5rem"></i></div><div class="lbl">Private groups</div></div>
+        </div>
+      </div>
+      <div class="col-lg-5 d-none d-lg-block text-center">
+        <!-- <svg viewBox="0 0 400 300" width="100%" fill="none" xmlns="http://www.w3.org/2000/svg" opacity=".5">
+          <ellipse cx="200" cy="150" rx="185" ry="120" stroke="#52B788" stroke-width="1.5"/>
+          <ellipse cx="200" cy="150" rx="155" ry="100" stroke="#52B788" stroke-width="1.5"/>
+          <ellipse cx="200" cy="150" rx="125" ry="80" stroke="#52B788" stroke-width="1.5"/>
+          <ellipse cx="200" cy="150" rx="95" ry="60" stroke="#52B788" stroke-width="1.5"/>
+          <ellipse cx="200" cy="150" rx="65" ry="40" stroke="#52B788" stroke-width="1.5"/>
+          <ellipse cx="200" cy="150" rx="35" ry="22" stroke="#52B788" stroke-width="1.5"/>
+          <circle cx="200" cy="150" r="6" fill="#52B788"/>
+          <path d="M60 220 Q100 160 140 140 Q180 120 200 150 Q230 180 270 120 Q300 70 340 90" stroke="#52B788" stroke-width="2.5" stroke-linecap="round"/>
+        </svg> -->
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- Features -->
+<section class="py-5 border-top" style="border-color:#2a3f2f!important">
+  <div class="container">
+    <p class="section-label text-center mb-4">Why TrailShare</p>
+    <div class="row g-4">
+      {% for icon, title, desc in features %}{% endfor %}
+      <div class="col-md-6 col-lg-3">
+        <div class="d-flex gap-3">
+          <div class="feature-icon-wrap">🗺️</div>
+          <div><h6>gpx.studio Maps</h6><p class="text-secondary small mb-0">Every track opens in gpx.studio's full interactive viewer, embedded right in the page.</p></div>
+        </div>
+      </div>
+      <div class="col-md-6 col-lg-3">
+        <div class="d-flex gap-3">
+          <div class="feature-icon-wrap">👥</div>
+          <div><h6>Group Spaces</h6><p class="text-secondary small mb-0">Public or private groups for clubs, crews, and communities. Share only with who matters.</p></div>
+        </div>
+      </div>
+      <div class="col-md-6 col-lg-3">
+        <div class="d-flex gap-3">
+          <div class="feature-icon-wrap">📊</div>
+          <div><h6>Auto Stats</h6><p class="text-secondary small mb-0">Distance, elevation gain, duration — parsed automatically from your GPX on upload.</p></div>
+        </div>
+      </div>
+      <div class="col-md-6 col-lg-3">
+        <div class="d-flex gap-3">
+          <div class="feature-icon-wrap">🔗</div>
+          <div><h6>Invite Links</h6><p class="text-secondary small mb-0">Share a secret invite URL for private groups. Revoke and regenerate anytime.</p></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- CTA -->
+<section class="py-5 text-center border-top" style="border-color:#2a3f2f!important">
+  <div class="container py-3">
+    <h2 class="display-5 mb-3">Ready to share<br>your trails?</h2>
+    <p class="text-secondary mb-4">Join TrailShare and start sharing your GPX adventures today.</p>
+    <a href="{% url 'register' %}" class="btn btn-ts btn-lg px-5">Create Free Account</a>
+  </div>
+</section>
+{% endblock %}

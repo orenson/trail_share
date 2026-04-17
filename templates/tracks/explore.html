@@ -1,0 +1,69 @@
+{% extends 'base.html' %}
+{% block title %}Explore Groups — TrailShare{% endblock %}
+{% block content %}
+<div class="container py-4">
+
+  <div class="d-flex justify-content-between align-items-center flex-wrap gap-3 mb-4">
+    <div>
+      <p class="section-label mb-1">Browse</p>
+      <h2 class="mb-0">Explore Groups</h2>
+    </div>
+    <form method="get" class="d-flex gap-2">
+      <div class="input-group" style="width:280px">
+        <span class="input-group-text" style="background:#1e2d22;border-color:#2a3f2f;color:#4a6b52"><i class="bi bi-search"></i></span>
+        <input type="text" name="q" value="{{ q }}" placeholder="Search groups..."
+               class="form-control" autocomplete="off">
+      </div>
+      <button type="submit" class="btn btn-ts">Search</button>
+      {% if q %}<a href="{% url 'explore' %}" class="btn btn-outline-secondary"><i class="bi bi-x-lg"></i></a>{% endif %}
+    </form>
+  </div>
+
+  {% if q %}
+  <p class="text-secondary small mb-3">
+    {{ groups|length }} result{{ groups|length|pluralize }} for "<strong class="text-light">{{ q }}</strong>"
+  </p>
+  {% endif %}
+
+  {% if groups %}
+  <div class="row g-3">
+    {% for group in groups %}
+    <div class="col-md-6 col-lg-4">
+      <a href="{% url 'group_detail' group.slug %}" class="group-card-link">
+        <div class="card h-100">
+          <div class="cover-bar" style="background:{{ group.cover_color }}"></div>
+          <div class="card-body d-flex flex-column">
+            <h6 class="card-title mb-1">{{ group.name }}</h6>
+            <p class="text-secondary small flex-grow-1 mb-3" style="display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;overflow:hidden">{{ group.description|default:"No description." }}</p>
+            <div class="d-flex justify-content-between align-items-center">
+              <div class="d-flex gap-2">
+                <span class="stat-pill"><i class="bi bi-people"></i> {{ group.member_count }}</span>
+                <span class="stat-pill"><i class="bi bi-map"></i> {{ group.track_count }}</span>
+              </div>
+              {% if user.is_authenticated %}
+                {% if user in group.members.all or user == group.creator %}
+                  <span class="badge badge-activity">Joined</span>
+                {% else %}
+                  <span class="badge bg-secondary bg-opacity-25 text-secondary">Join →</span>
+                {% endif %}
+              {% endif %}
+            </div>
+          </div>
+        </div>
+      </a>
+    </div>
+    {% endfor %}
+  </div>
+  {% else %}
+  <div class="text-center py-5">
+    <div style="font-size:2.5rem" class="mb-3">🔍</div>
+    <h5>No groups found</h5>
+    <p class="text-secondary small mb-3">{% if q %}Try a different search term.{% else %}Be the first to create a public group!{% endif %}</p>
+    {% if user.is_authenticated %}
+    <a href="{% url 'create_group' %}" class="btn btn-ts">Create a Group</a>
+    {% endif %}
+  </div>
+  {% endif %}
+
+</div>
+{% endblock %}

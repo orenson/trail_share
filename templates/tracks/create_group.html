@@ -1,0 +1,76 @@
+{% extends 'base.html' %}
+{% block title %}Create Group — TrailShare{% endblock %}
+{% block extra_head %}
+<style>
+  .color-swatch-wrap input[type=radio] { display:none; }
+  .color-swatch { width:34px; height:34px; border-radius:50%; cursor:pointer; border:3px solid transparent; transition:all .15s; display:inline-block; }
+  .color-swatch-wrap input[type=radio]:checked + .color-swatch { border-color:#fff; box-shadow:0 0 0 3px var(--ts-green); }
+  .color-swatch:hover { transform:scale(1.15); }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container py-5" style="max-width:600px">
+  <div class="mb-4">
+    <p class="section-label mb-1">Groups</p>
+    <h2>Create a Group</h2>
+    <p class="text-secondary">Build a space to share trails with friends, your club, or the world.</p>
+  </div>
+
+  <div class="card">
+    <div class="card-body p-4">
+      <form method="post">
+        {% csrf_token %}
+
+        <div class="mb-3">
+          <label class="form-label small">Group Name <span class="text-danger">*</span></label>
+          {{ form.name }}
+          {% if form.name.errors %}<div class="text-danger small mt-1">{{ form.name.errors.0 }}</div>{% endif %}
+        </div>
+
+        <div class="mb-3">
+          <label class="form-label small">Description</label>
+          {{ form.description }}
+        </div>
+
+        <!-- Color picker -->
+        <div class="mb-3">
+          <label class="form-label small">Group Colour</label>
+          <div class="d-flex flex-wrap gap-2 mt-1" id="colorPicker">
+            {% for value, label in form.fields.cover_color.choices %}
+            <label class="color-swatch-wrap" title="{{ label }}">
+              <input type="radio" name="cover_color" value="{{ value }}"
+                     {% if forloop.first %}checked{% endif %}>
+              <span class="color-swatch" style="background:{{ value }}"></span>
+            </label>
+            {% endfor %}
+          </div>
+        </div>
+
+        <!-- Privacy toggle -->
+        <div class="mb-4">
+          <label class="form-label small">Privacy</label>
+          <div class="card" style="background:#1e2d22">
+            <div class="card-body py-3">
+              <div class="form-check form-switch d-flex align-items-center gap-3 m-0">
+                {{ form.is_private }}
+                <div>
+                  <label class="form-check-label fw-semibold small" for="{{ form.is_private.id_for_label }}">
+                    Private Group <i class="bi bi-lock-fill ms-1 text-warning"></i>
+                  </label>
+                  <div class="text-secondary" style="font-size:.78rem">Only invited members can see and post in this group</div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="d-flex gap-3 justify-content-end">
+          <a href="{% url 'dashboard' %}" class="btn btn-outline-secondary">Cancel</a>
+          <button type="submit" class="btn btn-ts">Create Group <i class="bi bi-arrow-right ms-1"></i></button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+{% endblock %}

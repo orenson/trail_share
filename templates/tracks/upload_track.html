@@ -1,0 +1,128 @@
+{% extends 'base.html' %}
+{% block title %}Upload Track — TrailShare{% endblock %}
+{% block extra_head %}
+<style>
+  .drop-zone { border:2px dashed #2a3f2f; border-radius:.75rem; padding:2.5rem 1rem; text-align:center; cursor:pointer; transition:all .2s; position:relative; }
+  .drop-zone:hover, .drop-zone.dragover { border-color:var(--ts-green); background:rgba(82,183,136,.05); }
+  .drop-zone input { position:absolute; inset:0; opacity:0; cursor:pointer; width:100%; height:100%; }
+  .activity-btn input { display:none; }
+  .activity-btn label { display:flex; flex-direction:column; align-items:center; gap:.3rem; padding:.75rem .5rem; background:#1e2d22; border:1px solid #2a3f2f; border-radius:.5rem; cursor:pointer; transition:all .15s; font-size:.78rem; color:#7a9e84; width:100%; }
+  .activity-btn label:hover { border-color:#4a6b52; color:#d8eee0; }
+  .activity-btn input:checked + label { border-color:var(--ts-green); background:rgba(82,183,136,.1); color:var(--ts-green); }
+  .activity-icon { font-size:1.4rem; }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container py-5" style="max-width:600px">
+  <div class="mb-4">
+    <p class="section-label mb-1">
+      <span style="display:inline-block;width:10px;height:10px;border-radius:50%;background:{{ group.cover_color }};margin-right:.4rem"></span>
+      {{ group.name }}
+    </p>
+    <h2>Upload Track</h2>
+    <p class="text-secondary">Share a GPX file with the group.</p>
+  </div>
+
+  <div class="card">
+    <div class="card-body p-4">
+      <form method="post" enctype="multipart/form-data">
+        {% csrf_token %}
+
+        <!-- Drop zone -->
+        <div class="mb-3">
+          <label class="form-label small">GPX File <span class="text-danger">*</span></label>
+          <div class="drop-zone" id="dropZone">
+            <input type="file" name="gpx_file" accept=".gpx" id="gpxInput" required>
+            <div id="dropDefault">
+              <div style="font-size:2.5rem" class="mb-2">📁</div>
+              <div class="fw-semibold small">Drop your GPX file here</div>
+              <div class="text-secondary" style="font-size:.75rem">or click to browse · .gpx only</div>
+            </div>
+            <div id="dropSelected" class="d-none">
+              <div style="font-size:2rem" class="mb-1">✅</div>
+              <div class="small fw-semibold" id="fileName" style="color:var(--ts-green)"></div>
+            </div>
+          </div>
+          {% if form.gpx_file.errors %}<div class="text-danger small mt-1">{{ form.gpx_file.errors.0 }}</div>{% endif %}
+        </div>
+
+        <!-- Title -->
+        <div class="mb-3">
+          <label class="form-label small">Title <span class="text-danger">*</span></label>
+          {{ form.title }}
+          {% if form.title.errors %}<div class="text-danger small mt-1">{{ form.title.errors.0 }}</div>{% endif %}
+        </div>
+
+        <!-- Description -->
+        <div class="mb-3">
+          <label class="form-label small">Description</label>
+          {{ form.description }}
+        </div>
+
+        <!-- Activity Type -->
+        <div class="mb-4">
+          <label class="form-label small">Activity Type</label>
+          <div class="row g-2">
+            {% for value, label in form.fields.activity_type.choices %}
+            <div class="col-4 col-sm-2 activity-btn">
+              <input type="radio" name="activity_type" value="{{ value }}"
+                     id="act_{{ forloop.counter }}"
+                     {% if forloop.first %}checked{% endif %}>
+              <label for="act_{{ forloop.counter }}">
+                <span class="activity-icon">
+                  {% if value == "hiking" %}🥾{% elif value == "running" %}🏃{% elif value == "cycling" %}🚴{% elif value == "mtb" %}🚵{% elif value == "skiing" %}⛷️{% else %}📍{% endif %}
+                </span>
+                {{ label }}
+              </label>
+            </div>
+            {% endfor %}
+          </div>
+        </div>
+
+        <div class="d-flex gap-3 justify-content-end">
+          <a href="{% url 'group_detail' group.slug %}" class="btn btn-outline-secondary">Cancel</a>
+          <button type="submit" class="btn btn-ts">Upload Track <i class="bi bi-upload ms-1"></i></button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+  const input = document.getElementById('gpxInput');
+  const zone = document.getElementById('dropZone');
+
+  function showFile(name) {
+    document.getElementById('dropDefault').classList.add('d-none');
+    document.getElementById('dropSelected').classList.remove('d-none');
+    document.getElementById('fileName').textContent = name;
+    // Auto-fill title
+    const titleEl = document.getElementById('id_title');
+    if (titleEl && !titleEl.value) {
+      const clean = name.replace(/\.gpx$/i,'').replace(/[-_]/g,' ');
+      titleEl.value = clean.charAt(0).toUpperCase() + clean.slice(1);
+    }
+  }
+
+  input.addEventListener('change', () => {
+    if (input.files[0]) showFile(input.files[0].name);
+  });
+
+  zone.addEventListener('dragover', e => { e.preventDefault(); zone.classList.add('dragover'); });
+  zone.addEventListener('dragleave', () => zone.classList.remove('dragover'));
+  zone.addEventListener('drop', e => {
+    e.preventDefault(); zone.classList.remove('dragover');
+    const f = e.dataTransfer.files[0];
+    if (f && f.name.endsWith('.gpx')) {
+      // Assign to input
+      const dt = new DataTransfer();
+      dt.items.add(f);
+      input.files = dt.files;
+      showFile(f.name);
+    }
+  });
+</script>
+{% endblock %}
