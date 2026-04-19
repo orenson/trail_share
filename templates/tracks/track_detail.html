@@ -1,14 +1,5 @@
 {% extends 'base.html' %}
 {% block title %}{{ track.title }} — TrailShare{% endblock %}
-{% block extra_head %}
-<style>
-  .gpxstudio-frame { border:0; outline:none; border-radius:.5rem; display:block; }
-  .stats-grid { display:grid; grid-template-columns:repeat(auto-fit,minmax(120px,1fr)); gap:1px; background:#2a3f2f; border:1px solid #2a3f2f; border-radius:.5rem; overflow:hidden; }
-  .stat-cell { background:#162019; padding:1.2rem; text-align:center; }
-  .stat-cell .val { font-family:'Syne',sans-serif; font-size:1.6rem; font-weight:700; color:var(--ts-green); display:block; }
-  .stat-cell .lbl { font-size:.65rem; text-transform:uppercase; letter-spacing:.07em; color:#4a6b52; }
-</style>
-{% endblock %}
 
 {% block content %}
 <!-- Hero bar -->

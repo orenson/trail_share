@@ -7,7 +7,14 @@ SECRET_KEY = 'django-insecure-gpxshare-change-in-production-abc123xyz789'
 
 DEBUG = True
 
-ALLOWED_HOSTS = ['*']
+ALLOWED_HOSTS = [
+    ".ngrok-free.dev",
+    "localhost",
+    "127.0.0.1",
+]
+CSRF_TRUSTED_ORIGINS = [
+    "https://*.ngrok-free.dev",
+]
 
 INSTALLED_APPS = [
     'django.contrib.admin',
@@ -85,3 +92,14 @@ LOGIN_REDIRECT_URL = '/dashboard/'
 LOGOUT_REDIRECT_URL = '/'
 
 MESSAGE_STORAGE = 'django.contrib.messages.storage.session.SessionStorage'
+
+if DEBUG:
+    EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
+    DEFAULT_FROM_EMAIL = 'TrailShare <noreply@trailshare.example.com>'
+else:
+    EMAIL_BACKEND   = 'django.core.mail.backends.smtp.EmailBackend'
+    EMAIL_HOST      = 'smtp-mail.outlook.com'
+    EMAIL_PORT      = 587
+    EMAIL_USE_TLS   = True
+    EMAIL_HOST_USER = 'oli.renson@hotmail.com'
+    EMAIL_HOST_PASSWORD = os.environ.get("HOST_PASSWORD")

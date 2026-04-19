@@ -1,13 +1,5 @@
 {% extends 'base.html' %}
 {% block title %}Create Group — TrailShare{% endblock %}
-{% block extra_head %}
-<style>
-  .color-swatch-wrap input[type=radio] { display:none; }
-  .color-swatch { width:34px; height:34px; border-radius:50%; cursor:pointer; border:3px solid transparent; transition:all .15s; display:inline-block; }
-  .color-swatch-wrap input[type=radio]:checked + .color-swatch { border-color:#fff; box-shadow:0 0 0 3px var(--ts-green); }
-  .color-swatch:hover { transform:scale(1.15); }
-</style>
-{% endblock %}
 
 {% block content %}
 <div class="container py-5" style="max-width:600px">

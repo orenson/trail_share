@@ -13,9 +13,8 @@ def register_view(request):
         if form.is_valid():
             user = form.save()
             login(request, user)
-            next_url = request.GET.get('next', 'dashboard')
             messages.success(request, f'Welcome to TrailShare, {user.username}!')
-            return redirect(next_url)
+            return redirect(request.GET.get('next', 'dashboard'))
     else:
         form = RegisterForm()
     return render(request, 'accounts/register.html', {'form': form})
@@ -29,8 +28,7 @@ def login_view(request):
         if form.is_valid():
             user = form.get_user()
             login(request, user)
-            next_url = request.GET.get('next', 'dashboard')
-            return redirect(next_url)
+            return redirect(request.GET.get('next', 'dashboard'))
         else:
             messages.error(request, 'Invalid username or password.')
     else:

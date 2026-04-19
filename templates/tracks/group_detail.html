@@ -1,5 +1,6 @@
 {% extends 'base.html' %}
 {% block title %}{{ group.name }} — TrailShare{% endblock %}
+
 {% block content %}
 
 <!-- Hero -->
@@ -18,7 +19,9 @@
           <span class="stat-pill"><i class="bi bi-people"></i> {{ group.member_count }} members</span>
           <span class="stat-pill"><i class="bi bi-map"></i> {{ group.track_count }} tracks</span>
           {% if group.is_private %}
-          <span class="badge" style="background:rgba(244,162,97,.15);color:#f4a261;border:1px solid rgba(244,162,97,.3)"><i class="bi bi-lock-fill me-1"></i>Private</span>
+          <span class="badge" style="background:rgba(244,162,97,.15);color:#f4a261;border:1px solid rgba(244,162,97,.3)">
+            <i class="bi bi-lock-fill me-1"></i>Private
+          </span>
           {% else %}
           <span class="badge badge-activity"><i class="bi bi-globe me-1"></i>Public</span>
           {% endif %}
@@ -26,13 +29,19 @@
       </div>
       <div class="d-flex gap-2 flex-wrap">
         {% if is_member %}
-          <a href="{% url 'upload_track' group.slug %}" class="btn btn-ts btn-sm"><i class="bi bi-upload me-1"></i>Upload Track</a>
+          <a href="{% url 'upload_track' group.slug %}" class="btn btn-ts btn-sm">
+            <i class="bi bi-upload me-1"></i>Upload Track
+          </a>
           {% if user != group.creator %}
-          <a href="{% url 'leave_group' group.slug %}" class="btn btn-outline-secondary btn-sm"><i class="bi bi-box-arrow-left me-1"></i>Leave</a>
+          <a href="{% url 'leave_group' group.slug %}" class="btn btn-outline-secondary btn-sm">
+            <i class="bi bi-box-arrow-left me-1"></i>Leave
+          </a>
           {% endif %}
         {% else %}
           {% if not group.is_private %}
-          <a href="{% url 'join_group' group.slug %}" class="btn btn-ts btn-sm"><i class="bi bi-person-plus me-1"></i>Join Group</a>
+          <a href="{% url 'join_group' group.slug %}" class="btn btn-ts btn-sm">
+            <i class="bi bi-person-plus me-1"></i>Join Group
+          </a>
           {% endif %}
         {% endif %}
       </div>
@@ -46,50 +55,127 @@
   {% endif %}
 
   <div class="row g-4">
-    <!-- Tracks -->
+
+    <!-- ── Tracks ──────────────────────────────────────────────────────── -->
     <div class="col-lg-8">
-      <p class="section-label mb-3">Tracks ({{ tracks|length }})</p>
+
       {% if tracks %}
-      <div class="row g-3">
+      <div class="d-flex justify-content-between align-items-center mb-3">
+        <p class="section-label mb-0">Tracks ({{ tracks|length }})</p>
+      </div>
+
+      <div class="row g-3" id="trackGrid">
         {% for track in tracks %}
         <div class="col-md-6">
-          <a href="{% url 'track_detail' track.pk %}" class="text-decoration-none">
-            <div class="card h-100" style="transition:all .2s">
+          <!-- Wrap is the selectable unit -->
+          <div class="track-card-wrap position-relative"
+               data-pk="{{ track.pk }}"
+               data-url="{{ request.scheme }}://{{ request.get_host }}{{ track.gpx_file.url }}"
+               onclick="toggleTrack(this)">
+
+            <!-- Invisible checkbox for state -->
+            <input type="checkbox" class="track-checkbox" id="chk_{{ track.pk }}">
+
+            <!-- Checkmark indicator -->
+            <div class="check-indicator" aria-hidden="true">
+              <i class="bi bi-check-lg"></i>
+            </div>
+
+            <!-- Card — click opens detail ONLY if not clicking for selection -->
+            <div class="card h-100">
               <div class="card-body">
                 <div class="d-flex align-items-start gap-3 mb-2">
                   <span style="font-size:1.8rem">{{ track.activity_icon }}</span>
-                  <div>
-                    <h6 class="card-title mb-1">{{ track.title }}</h6>
-                    <div class="text-secondary" style="font-size:.75rem">by {{ track.uploaded_by.username }} · {{ track.created_at|date:"M j, Y" }}</div>
+                  <div class="flex-grow-1">
+                    <div class="d-flex justify-content-between align-items-start gap-2">
+                      <h6 class="card-title mb-1">{{ track.title }}</h6>
+                      <a href="{% url 'track_detail' track.pk %}"
+                         class="btn btn-outline-secondary btn-sm py-0 px-2 flex-shrink-0 border-0"
+                         onclick="event.stopPropagation()"
+                         title="View track detail"
+                         style="font-size:.7rem">
+                        <i class="bi bi-box-arrow-up-right"></i>
+                      </a>
+                    </div>
+                    <div class="text-secondary" style="font-size:.75rem">
+                      by {{ track.uploaded_by.username }} · {{ track.created_at|date:"M j, Y" }}
+                    </div>
                   </div>
                 </div>
+                {% if track.description %}
+                <p class="text-secondary small mb-0"
+                   style="display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden">
+                  {{ track.description }}
+                </p>
+                {% endif %}
               </div>
               <div class="card-footer d-flex flex-wrap gap-2">
-                {% if track.distance_km %}<span class="stat-pill"><i class="bi bi-rulers"></i> {{ track.distance_km }} km</span>{% endif %}
-                {% if track.elevation_gain_m %}<span class="stat-pill"><i class="bi bi-arrow-up"></i> {{ track.elevation_gain_m }}m</span>{% endif %}
-                {% if track.get_duration_display %}<span class="stat-pill"><i class="bi bi-clock"></i> {{ track.get_duration_display }}</span>{% endif %}
+                {% if track.distance_km %}
+                <span class="stat-pill"><i class="bi bi-rulers"></i> {{ track.distance_km }} km</span>
+                {% endif %}
+                {% if track.elevation_gain_m %}
+                <span class="stat-pill"><i class="bi bi-arrow-up"></i> {{ track.elevation_gain_m }}m</span>
+                {% endif %}
+                {% if track.get_duration_display %}
+                <span class="stat-pill"><i class="bi bi-clock"></i> {{ track.get_duration_display }}</span>
+                {% endif %}
                 <span class="stat-pill">{{ track.get_activity_type_display }}</span>
               </div>
             </div>
-          </a>
+          </div>
         </div>
         {% endfor %}
       </div>
+
+      <!-- ── Combined map (shown when ≥1 track selected) ──────────────── -->
+      <div id="combinedMapSection" class="mt-4">
+        <div class="d-flex justify-content-between align-items-center mb-2">
+          <p class="section-label mb-0">
+            <i class="bi bi-map me-1"></i>
+            Selected Routes — <span id="mapCount">0</span> track(s)
+          </p>
+          <a id="gpxStudioLink" href="#" target="_blank"
+             class="text-secondary small text-decoration-none">
+            <i class="bi bi-box-arrow-up-right me-1"></i>Open full screen
+          </a>
+        </div>
+        <div class="card p-0 overflow-hidden">
+          <iframe id="combinedMapFrame"
+                  class="gpxstudio-frame"
+                  src="about:blank"
+                  width="100%"
+                  height="500px"
+                  frameborder="0"
+                  style="outline:none"
+                  title="Combined gpx.studio view">
+          </iframe>
+        </div>
+        <div class="alert mt-2 py-2 small"
+             style="background:#1e2d22;border:1px solid #2a3f2f;color:#7a9e84">
+          <i class="bi bi-info-circle me-1"></i>
+          The map fetches GPX files by URL — it requires a publicly reachable server.
+          Use <code style="color:#d8eee0">ngrok http 8000</code> for local testing.
+        </div>
+      </div>
+
       {% else %}
-      <div class="card"><div class="card-body text-center py-5">
-        <div style="font-size:2.5rem" class="mb-3">🗺️</div>
-        <h5>No tracks yet</h5>
-        {% if is_member %}
-        <p class="text-secondary small mb-3">Be the first to share a GPX track!</p>
-        <a href="{% url 'upload_track' group.slug %}" class="btn btn-ts">Upload First Track</a>
-        {% else %}
-        <p class="text-secondary small mb-0">Join the group to upload tracks.</p>
-        {% endif %}
-      </div></div>
+      <p class="section-label mb-3">Tracks (0)</p>
+      <div class="card">
+        <div class="card-body text-center py-5">
+          <div style="font-size:2.5rem" class="mb-3">🗺️</div>
+          <h5>No tracks yet</h5>
+          {% if is_member %}
+          <p class="text-secondary small mb-3">Be the first to share a GPX track!</p>
+          <a href="{% url 'upload_track' group.slug %}" class="btn btn-ts">Upload First Track</a>
+          {% else %}
+          <p class="text-secondary small mb-0">Join the group to upload tracks.</p>
+          {% endif %}
+        </div>
+      </div>
       {% endif %}
     </div>
 
-    <!-- Sidebar -->
+    <!-- ── Sidebar ────────────────────────────────────────────────────── -->
     <div class="col-lg-4">
 
       <!-- Members -->
@@ -97,26 +183,30 @@
       <div class="card mb-4">
         <div class="card-body">
           <div class="d-flex flex-wrap gap-2">
-            <span class="badge" style="background:rgba(82,183,136,.15);color:var(--ts-green);border:1px solid rgba(82,183,136,.3);font-size:.78rem;padding:.35rem .65rem">
+            <span class="badge"
+                  style="background:rgba(82,183,136,.15);color:var(--ts-green);border:1px solid rgba(82,183,136,.3);font-size:.78rem;padding:.35rem .65rem">
               <i class="bi bi-star-fill me-1"></i>{{ group.creator.username }}
             </span>
             {% for member in group.members.all %}
               {% if member != group.creator %}
-              <span class="badge bg-secondary bg-opacity-25 text-secondary" style="font-size:.78rem;padding:.35rem .65rem">{{ member.username }}</span>
+              <span class="badge bg-secondary bg-opacity-25 text-secondary"
+                    style="font-size:.78rem;padding:.35rem .65rem">{{ member.username }}</span>
               {% endif %}
             {% endfor %}
           </div>
         </div>
       </div>
 
-      <!-- Invite Link (visible to members) -->
+      <!-- Invite Link -->
       {% if is_member %}
       <p class="section-label mb-3">Invite Link</p>
       <div class="card">
         <div class="card-body">
           <p class="text-secondary small mb-2">
-            {% if group.is_private %}<i class="bi bi-lock-fill me-1 text-warning"></i>Private group — share this link to invite people.
-            {% else %}<i class="bi bi-globe me-1" style="color:var(--ts-green)"></i>Public group — anyone can join, but you can also share this direct link.
+            {% if group.is_private %}
+            <i class="bi bi-lock-fill me-1 text-warning"></i>Private group — share this link to invite people.
+            {% else %}
+            <i class="bi bi-globe me-1" style="color:var(--ts-green)"></i>Anyone can join, or share this direct link.
             {% endif %}
           </p>
           <div class="invite-box mb-2" id="inviteUrl">{{ invite_url }}</div>
@@ -127,9 +217,10 @@
             {% if user == group.creator %}
             <form method="post" action="{% url 'rotate_invite' group.slug %}" class="d-inline">
               {% csrf_token %}
-              <button type="submit" class="btn btn-outline-danger btn-sm"
+              <button type="submit"
+                      class="btn btn-outline-danger btn-sm"
                       onclick="return confirm('Reset invite link? The old link will stop working.')"
-                      title="Reset invite link">
+                      title="Regenerate invite link">
                 <i class="bi bi-arrow-clockwise"></i>
               </button>
             </form>
@@ -139,6 +230,24 @@
       </div>
       {% endif %}
 
+    </div><!-- /sidebar -->
+  </div><!-- /row -->
+</div><!-- /container -->
+
+<!-- ── Sticky selection toolbar ─────────────────────────────────────────── -->
+<div id="selectionBar">
+  <div class="container d-flex align-items-center justify-content-between gap-3 flex-wrap">
+    <span class="text-secondary small">
+      <i class="bi bi-check2-square me-1" style="color:var(--ts-green)"></i>
+      <span id="barCount">0</span> track(s) selected
+    </span>
+    <div class="d-flex gap-2">
+      <button class="btn btn-outline-secondary btn-sm" onclick="clearAll()">
+        <i class="bi bi-x-lg me-1"></i>Clear selection
+      </button>
+      <button class="btn btn-ts btn-sm" onclick="scrollToMap()">
+        <i class="bi bi-map me-1"></i>View on map
+      </button>
     </div>
   </div>
 </div>
@@ -147,6 +256,75 @@
 
 {% block extra_js %}
 <script>
+// ── State ──────────────────────────────────────────────────────────────────
+const selected = new Set();   // set of pk strings
+
+// ── Toggle a track card ────────────────────────────────────────────────────
+function toggleTrack(wrap) {
+  const pk = wrap.dataset.pk;
+  if (selected.has(pk)) {
+    selected.delete(pk);
+    wrap.classList.remove('selected');
+  } else {
+    selected.add(pk);
+    wrap.classList.add('selected');
+  }
+  updateUI();
+}
+
+// ── Update toolbar + map ───────────────────────────────────────────────────
+function updateUI() {
+  const n = selected.size;
+
+  // Sticky bar
+  const bar = document.getElementById('selectionBar');
+  bar.classList.toggle('visible', n > 0);
+  document.getElementById('barCount').textContent = n;
+
+  // Combined map section
+  const mapSection = document.getElementById('combinedMapSection');
+  mapSection.classList.toggle('visible', n > 0);
+  document.getElementById('mapCount').textContent = n;
+
+  if (n > 0) {
+    buildMap();
+  } else {
+    // Reset iframe to blank to avoid stale content
+    document.getElementById('combinedMapFrame').src = 'about:blank';
+  }
+}
+
+// ── Build gpx.studio embed URL and inject iframe ───────────────────────────
+function buildMap() {
+  // Collect file URLs in selection order
+  const urls = [];
+  document.querySelectorAll('.track-card-wrap').forEach(wrap => {
+    if (selected.has(wrap.dataset.pk)) {
+      urls.push(wrap.dataset.url);
+    }
+  });
+
+  const options = JSON.stringify({ files: urls, basemap: 'openStreetMap' });
+  const embedUrl = 'https://gpx.studio/embed?options=' + encodeURIComponent(options);
+
+  document.getElementById('combinedMapFrame').src = embedUrl;
+  document.getElementById('gpxStudioLink').href = embedUrl;
+}
+
+// ── Clear all selections ───────────────────────────────────────────────────
+function clearAll() {
+  selected.clear();
+  document.querySelectorAll('.track-card-wrap.selected').forEach(w => w.classList.remove('selected'));
+  updateUI();
+}
+
+// ── Scroll to combined map ─────────────────────────────────────────────────
+function scrollToMap() {
+  const el = document.getElementById('combinedMapSection');
+  if (el) el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+}
+
+// ── Invite copy ────────────────────────────────────────────────────────────
 function copyInvite() {
   const url = document.getElementById('inviteUrl').textContent.trim();
   navigator.clipboard.writeText(url).then(() => {

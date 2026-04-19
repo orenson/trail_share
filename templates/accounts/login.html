@@ -13,7 +13,7 @@
         <form method="post">
           {% csrf_token %}
           <div class="mb-3">
-            <label class="form-label small">Username</label>
+            <label class="form-label small">Username or Email</label>
             {{ form.username }}
             {% if form.username.errors %}<div class="text-danger small mt-1">{{ form.username.errors.0 }}</div>{% endif %}
           </div>
@@ -31,6 +31,8 @@
     </div>
     <p class="text-center text-secondary small mt-3">
       New to TrailShare? <a href="{% url 'register' %}" class="text-decoration-none" style="color:var(--ts-green)">Create an account</a>
+      </br>
+      Forgot password? <a href="{% url 'password_reset' %}" class="text-decoration-none" style="color:var(--ts-green)">Ask reset</a>
     </p>
   </div>
 </div>
